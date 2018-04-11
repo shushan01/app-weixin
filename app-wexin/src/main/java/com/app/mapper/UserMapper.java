@@ -12,5 +12,6 @@ import java.util.List;
  * @Date: 2017/11/28 13:42
  */
 public interface UserMapper extends SuperMapper<User> {
+
     List<User> findByName(@Param("name") String name);
 }
