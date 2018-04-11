@@ -1,0 +1,16 @@
+com\app\base\ResponseDTO.class
+com\app\service\UserService.class
+com\app\controller\UserController.class
+com\app\base\BaseObject.class
+com\app\po\User.class
+com\app\config\MyBatisMapperScannerConfig.class
+META-INF\spring-configuration-metadata.json
+com\app\config\SuperMapper.class
+com\app\base\PageResponseDTO.class
+com\app\ServiceMybatisApplication.class
+com\app\base\BaseController.class
+com\app\base\PageReqestDTO.class
+com\app\base\BaseService.class
+com\app\config\MybatisAutoConfiguration.class
+com\app\config\MybatisProperties.class
+com\app\mapper\UserMapper.class
