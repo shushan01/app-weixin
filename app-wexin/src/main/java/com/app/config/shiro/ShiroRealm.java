@@ -1,53 +1,43 @@
 package com.app.config.shiro;
 
+import com.app.po.User;
+import com.hazelcast.util.MD5Util;
+import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.*;
-import org.apache.shiro.realm.AuthenticatingRealm;
-import org.apache.shiro.util.ByteSource;
+import org.apache.shiro.authz.AuthorizationInfo;
+import org.apache.shiro.authz.SimpleAuthorizationInfo;
+import org.apache.shiro.realm.AuthorizingRealm;
+import org.apache.shiro.session.Session;
+import org.apache.shiro.subject.PrincipalCollection;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
-import java.util.Map;
+public class ShiroRealm extends AuthorizingRealm {
+    private Logger log = LoggerFactory.getLogger(this.getClass());
 
-public class ShiroRealm extends AuthenticatingRealm {
-
-    private SimpleAuthenticationInfo info = null;
-
-    /**
-     * 1.doGetAuthenticationInfo，获取认证消息，如果数据库中没有数，返回null，如果得到了正确的用户名和密码，
-     * 返回指定类型的对象
-     * <p>
-     * 2.AuthenticationInfo 可以使用SimpleAuthenticationInfo实现类，封装正确的用户名和密码。
-     * <p>
-     * 3.token参数 就是我们需要认证的token
-     *
-     * @param authenticationToken
-     * @return
-     * @throws AuthenticationException
-     */
+    @Override
+    protected AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection principalCollection) {
+        //不设置权限
+        SimpleAuthorizationInfo info = new SimpleAuthorizationInfo();
+        return info;
+    }
 
     @Override
     protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken authenticationToken) throws AuthenticationException {
-        // 将token装换成UsernamePasswordToken
-        UsernamePasswordToken upToken = (UsernamePasswordToken) authenticationToken;
-        // 获取用户名即可
-        String username = upToken.getUsername();
-        // 查询数据库，是否查询到用户名和密码的用户
-        Map<String, Object> userInfo = new HashMap<>();
-        userInfo.put("username", "yeyang");
-        userInfo.put("password", "123456");
-        if (userInfo != null) {
-            // 如果查询到了，封装查询结果，返回给我们的调用
-            Object principal = userInfo.get("username");
-            Object credentials = userInfo.get("password");
+        UsernamePasswordToken token = (UsernamePasswordToken) authenticationToken;
+        String userName = token.getUsername();
 
-            // 获取盐值，即用户名
-            ByteSource salt = ByteSource.Util.bytes(username);
-            String realmName = this.getName();
-            // 将账户名，密码，盐值，realmName实例化到SimpleAuthenticationInfo中交给Shiro来管理
-            info = new SimpleAuthenticationInfo(principal, credentials, salt, realmName);
+        User user = new User();
+        user.setName("yeyang");
+        user.setPassword(MD5Util.toMD5String("123456"));
+        if (user != null) {
+            //设置用户session
+            Session session = SecurityUtils.getSubject().getSession();
+            session.setAttribute("user", user);
+            return new SimpleAuthenticationInfo(userName, user.getPassword(), getName());
         } else {
-            // 如果没有查询到，抛出一个异常
-            throw new AuthenticationException();
+            return null;
         }
-        return info;
     }
+
 }
